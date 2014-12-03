@@ -32,6 +32,9 @@ class Issue < ActiveRecord::Base
                 :url => Proc.new {|o| {:controller => 'issues', :action => 'show', :id => o.id}},
                 :type => Proc.new {|o| 'issue' + (o.closed? ? ' closed' : '') }
 
+  delegate :rejected?, :accepted?, :to => :status
+  delegate :gift?, :expense?, :hourly?, :feature?, :bug?, :chore?, :to => :tracker
+
   # ===============
   # = CSV support =
   # ===============
@@ -83,56 +86,21 @@ class Issue < ActiveRecord::Base
   end
 
   # Returns true if there are enough agreements in relation to the estimated points of the request
-  def ready_for_open? # cover_me heckle_me
-    return false if points.nil? || agree_total < 1
-    return true if agree - disagree > points_from_credits / 2
-    return true if agree_total > 0
-    return false
+  def ready_for_open?
+    points.present? && agree_total >= 1
   end
 
   # Returns true if there are enough disagreements in relation to the estimated points of the request
-  def ready_for_canceled? # cover_me heckle_me
-    return false if agree_total > 0
-    return true if agree_total < 0 && (updated_at < DateTime.now - Setting::LAZY_MAJORITY_LENGTH)
-    return false
+  def ready_for_canceled?
+    agree_total < 0 && lazy_majority_passed?
   end
 
   def ready_for_accepted? # cover_me heckle_me
-    return true if self.status == IssueStatus.accepted
-    return false if points.nil? || accept_total < 1
-    return true if accept_total > 0 && (self.updated_at < DateTime.now - Setting::LAZY_MAJORITY_LENGTH)
-    return false
+    accepted? || points.present? && accept_total > 0 && lazy_majority_passed?
   end
 
-  def ready_for_rejected? # cover_me heckle_me
-    return true if self.status == IssueStatus.rejected
-    return false if points.nil? || accept_total > -1
-    return true if accept_total < 0 && (updated_at < DateTime.now - Setting::LAZY_MAJORITY_LENGTH) #rejected
-    return false
-  end
-
-  def gift? # cover_me heckle_me
-    tracker.gift?
-  end
-
-  def expense? # cover_me heckle_me
-    tracker.expense?
-  end
-
-  def hourly? # cover_me heckle_me
-    tracker.hourly?
-  end
-
-  def feature? # cover_me heckle_me
-    tracker.feature?
-  end
-
-  def bug? # cover_me heckle_me
-    tracker.bug?
-  end
-
-  def chore? # cover_me heckle_me
-    tracker.chore?
+  def ready_for_rejected?
+    rejected? || points.present? && accept_total < 0 && lazy_majority_passed?
   end
 
   def updated_status # cover_me heckle_me
@@ -314,12 +282,12 @@ class Issue < ActiveRecord::Base
   end
 
   # Returns true if the issue is overdue
-  def overdue? # spec_me cover_me heckle_me
+  def overdue? # heckle_me
     !due_date.nil? && (due_date < DateTime.now) && !status.is_closed?
   end
 
   # Users the issue can be assigned to
-  def assignable_users # spec_me cover_me heckle_me
+  def assignable_users # heckle_me
     project.assignable_users
   end
 
@@ -373,7 +341,7 @@ class Issue < ActiveRecord::Base
 
   # Returns the due date or the target due date if any
   # Used on gantt chart
-  def due_before # spec_me cover_me heckle_me
+  def due_before # heckle_me
     due_date
   end
 
@@ -382,7 +350,7 @@ class Issue < ActiveRecord::Base
   # Example:
   #   Start Date: 2/26/09, End Date: 3/04/09
   #   duration => 6
-  def duration # spec_me cover_me heckle_me
+  def duration # heckle_me
     (start_date && due_date) ? due_date - start_date : 0
   end
 
@@ -406,7 +374,7 @@ class Issue < ActiveRecord::Base
 
 
   #returns true if this user is allowed to take (and/or offer) ownership for this particular issue
-  def push_allowed?(user) # spec_me cover_me heckle_me
+  def push_allowed?(user) # cover_me heckle_me
     return false if user.nil?
     return true if self.assigned_to == user #Any user who owns an issue can offer for people to take it, or can accept offers
 
@@ -585,6 +553,10 @@ class Issue < ActiveRecord::Base
   end
 
   private
+
+  def lazy_majority_passed?
+    updated_at < DateTime.now - Setting::LAZY_MAJORITY_LENGTH
+  end
 
   # Callback on attachment deletion
   def attachment_removed(obj) # cover_me heckle_me

@@ -185,7 +185,7 @@ class Role < ActiveRecord::Base
   end
 
   # Find all the roles that can be given to a project member
-  def self.find_all_givable(level) # spec_me cover_me heckle_me
+  def self.find_all_givable(level) # heckle_me
     find(:all, :conditions => {:level => level}, :order => 'position')
   end
 
@@ -206,7 +206,7 @@ class Role < ActiveRecord::Base
   end
 
   # Return the builtin 'board' role
-  def self.board # spec_me cover_me heckle_me
+  def self.board # cover_me heckle_me
     find(:first, :conditions => {:builtin => BUILTIN_BOARD}) || raise('Missing Board builtin role.')
   end
 
@@ -225,11 +225,6 @@ class Role < ActiveRecord::Base
   # Return the builtin 'member' role
   def self.member # spec_me cover_me heckle_me
     find(:first, :conditions => {:builtin => BUILTIN_MEMBER}) || raise('Missing member builtin role.')
-  end
-
-  # Return the builtin 'founder' role
-  def self.founder # spec_me cover_me heckle_me
-    find(:first, :conditions => {:builtin => BUILTIN_FOUNDER}) || raise('Missing founder builtin role.')
   end
 
   # Return the builtin 'clearance' role
@@ -256,7 +251,7 @@ class Role < ActiveRecord::Base
     @actions_allowed ||= allowed_permissions.inject([]) { |actions, permission| actions += Redmine::AccessControl.allowed_actions(permission) }.flatten
   end
 
-  def check_deletable # cover_me heckle_me
+  def check_deletable # heckle_me
     raise "Can't delete role" if members.any?
     raise "Can't delete builtin role" if builtin?
   end

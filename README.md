@@ -1,4 +1,4 @@
-![status](https://secure.travis-ci.org/mockdeep/better.png?branch=master)
+[![status](https://secure.travis-ci.org/mockdeep/better.png?branch=master)](https://secure.travis-ci.org/mockdeep/better?branch=master)
 [![Code Climate](https://codeclimate.com/github/mockdeep/better.png)](https://codeclimate.com/github/mockdeep/better)
 [![Dependency Status](https://gemnasium.com/mockdeep/better.png)](https://gemnasium.com/mockdeep/better)
 
@@ -7,9 +7,15 @@ live server hosted at: https://better.boon.gl
 *** Use at your own risk!!! There are likely to be vulnerabilities in this
 app!!! ***
 
+Support this project
+--------------------
+[![Pledgie](https://pledgie.com/campaigns/27557.png)](https://pledgie.com/campaigns/27557)
+[![Gratipay](https://img.shields.io/gratipay/mockdeep.svg)](https://www.gratipay.com/mockdeep/)
+[![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=416557)](https://www.bountysource.com/trackers/416557-mockdeep-better?utm_source=416557&utm_medium=shield&utm_campaign=TRACKER_BADGE)
+
 Roadmap
 -------
-1. get code coverage up to 100% -> currently 44.66%
+1. get code coverage up to 100% -> currently 45.49%
   - -> controllers
   - models
   - helpers
@@ -17,8 +23,8 @@ Roadmap
   - remove unused lib code where possible
   - libs
   - any stragglers
-2. add spec files for every method (use "spec_me" tags, 1193 and counting)
-3. mutation test every method (use "heckle_me" tags, 1665 left)
+2. add spec files for every method (use "spec_me" tags, 1163 and counting)
+3. mutation test every method (use "heckle_me" tags, 1649 left)
 4. upgrade to Ruby 1.9
 5. set up Rubocop and clean up code quality
 6. integration test and move vendored gems to Gemfile
